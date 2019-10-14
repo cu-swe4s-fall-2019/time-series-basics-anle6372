@@ -14,9 +14,20 @@ Note date files are synthetic data.
         2. _value is type int
     
     - Functions:
-        1. 
+        1. linear_search_value(self, key_time):
+            + Description: returns a list of values associated with the specified time
+            + Inputs:
+                - key_time: a time object of type datetime
+            + Outputs:
+                - List of values that correspond to that datetime in the ImportData instance
     
 ### Usage
+
+This will store the times and associated values in an instance of ImportData called imported_data
+```
+imported_data = d_i.ImportData('test_file.csv')
+```
+
 ### Necessary Modules
 
 ```

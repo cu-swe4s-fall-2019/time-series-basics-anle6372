@@ -230,7 +230,65 @@ class TestValuesOutsideRange(unittest.TestCase):
             self.assertEqual(imported_data._value, check_vals[2])
         os.remove('test_file.csv')
 
+class TestLinearSearch(unittest.TestCase):
 
+    def test_linear_search_single(self):
+        for i in range(20):
+            with open('test_file.csv', "w") as file_handle:
+                file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
+                Id = 0
+                for i in range(rdm.randint(1,20)):
+                    time = random_date()
+                    Id += i
+                    value = rdm.randint(100, 1000)
+                    file_writer.writerow([Id, time, value])
+                time = datetime.datetime(1800, 10, 20, 22, 38)
+                Id += 1
+                value = rdm.randint(1, 1000)
+                marked_time = time
+                marked_value = value
+                file_writer.writerow([Id, time, value])
+                for i in range(rdm.randint(1,20)):
+                    time = random_date()
+                    Id += i
+                    value = rdm.randint(100, 1000)
+                    file_writer.writerow([Id, time, value])
+                file_handle.close()
+                imported_data = d_i.ImportData('test_file.csv')
+                self.assertEqual(imported_data.linear_search_value(marked_time), [marked_value])
+            os.remove('test_file.csv')
+
+    def test_linear_search_double(self):
+        with open('test_file.csv', "w") as file_handle:
+            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
+            Id = 0
+            for i in range(rdm.randint(1,20)):
+                time = random_date()
+                Id += i
+                value = rdm.randint(100, 1000)
+                file_writer.writerow([Id, time, value])
+            time = datetime.datetime(1800, 10, 20, 22, 38)
+            Id += 1
+            value = rdm.randint(100, 1000)
+            marked_time = time
+            marked_value_1 = value
+            file_writer.writerow([Id, time, value])
+            for i in range(rdm.randint(1,20)):
+                time = random_date()
+                Id += i
+                value = rdm.randint(100, 1000)
+                file_writer.writerow([Id, time, value])
+            time = datetime.datetime(1800, 10, 20, 22, 38)
+            Id += 1
+            value = rdm.randint(100, 1000)
+            marked_value_2 = value
+            file_writer.writerow([Id, time, value])
+            file_handle.close()
+            imported_data = d_i.ImportData('test_file.csv')
+            self.assertEqual(imported_data.linear_search_value(marked_time), [marked_value_1, marked_value_2])
+        os.remove('test_file.csv')
 
 if __name__ == '__main__':
     unittest.main()

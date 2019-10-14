@@ -15,22 +15,27 @@ class ImportData:
         with open(data_csv, "r") as file_handle:
             reader = csv.DictReader(file_handle)
             for row in reader:
+                # ensures valid row
                 try:
                     int(row['Id'])
                 except ValueError:
                     continue
+                    # ensures time not empty
                 if not row['time']:
                     self._time.append(None)
+                    # ensures value not empty
                     if not row['value']:
                         self._value.append(None)
                         continue
                     continue
+                # stores time
                 try:
                     self._time.append(dateutil.parser.parse(row['time']))
                 except ValueError:
                     print('Bad input format for time')
                     print(row['time'])
                     raise ValueError
+                # adjusts value if necessary
                 if row['value'] == 'low':
                     self._value.append(int(40))
                     print('low value replaced with 40')
@@ -39,13 +44,14 @@ class ImportData:
                     self._value.append(int(300))
                     print('high value replaced with 300')
                     continue
+                # stores value
                 try:
                     self._value.append(int(row['value']))
                 except ValueError:
                     print('Bad input for value')
                     print(row['value'])
                     raise ValueError
-
+            # checks for empty arrays
             if self._time == []:
                 self._time = None
                 print('File missing time')
@@ -57,9 +63,17 @@ class ImportData:
 
 
     def linear_search_value(self, key_time):
-        pass
-        # return list of value(s) associated with key_time
-        # if none, return -1 and error message
+        # returns list of value(s) associated with key_time
+        values = []
+        for i in range(len(self._time)):
+            curr = self._time[i]
+            if key_time == curr:
+                values.append(self._value[i])
+                continue
+        if values == []:
+            print('No value associated with this time')
+            return -1
+        return values
 
     def binary_search_value(self,key_time):
         pass
