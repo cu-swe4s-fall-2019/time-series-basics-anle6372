@@ -5,19 +5,31 @@ from os.path import isfile, join
 import argparse
 import datetime
 
+# simple linear search tool
+def linear_search(entries, key_entry):
+    for i in range(len(entries)):
+        curr = entries[i]
+        if key_entry == curr:
+            return i
+    return -1
+
 
 # open file, create a reader from csv.DictReader, and read input times and values
 class ImportData:
     def __init__(self, data_csv):
+        self._file_name = data_csv
         self._time = []
         self._value = []
+        self._roundtime = []
+        self._roundvalue = []
 
         with open(data_csv, "r") as file_handle:
             reader = csv.DictReader(file_handle)
             for row in reader:
+                id = reader.fieldnames[0]
                 # ensures valid row
                 try:
-                    int(row['Id'])
+                    int(row[id])
                 except ValueError:
                     continue
                     # ensures time not empty
@@ -65,6 +77,8 @@ class ImportData:
     def linear_search_value(self, key_time):
         # returns list of value(s) associated with key_time
         values = []
+        if type(key_time) == str:
+            key_time = dateutil.parser.parse(key_time)
         for i in range(len(self._time)):
             curr = self._time[i]
             if key_time == curr:
@@ -75,24 +89,70 @@ class ImportData:
             return -1
         return values
 
-    def binary_search_value(self,key_time):
+    def binary_search_value(self, key_time):
         pass
         # optional extra credit
         # return list of value(s) associated with key_time
         # if none, return -1 and error message
 
-def roundTimeArray(obj, res):
-    pass
-    # Inputs: obj (ImportData Object) and res (rounding resoultion)
-    # objective:
-    # create a list of datetime entries and associated values
-    # with the times rounded to the nearest rounding resolution (res)
-    # ensure no duplicated times
-    # handle duplicated values for a single timestamp based on instructions in
-    # the assignment
-    # return: iterable zip object of the two lists
-    # note: you can create additional variables to help with this task
-    # which are not returned
+    def roundTimeArray(self, res):
+        # Inputs: obj (ImportData Object) and res (rounding resolution)
+        # Creates a list of datetime entries and associated values
+        # with the times rounded to the nearest rounding resolution (res)
+        # ensure no duplicated times
+        # handle duplicated values for a single timestamp based on instructions
+        # return: iterable zip object of the two lists
+        if 'activity' in self._file_name:
+            file_code = 'a'
+        if 'bolus' in self._file_name:
+            file_code = 'b'
+        if 'meal' in self._file_name:
+            file_code = 'm'
+        if 'smbg' in self._file_name:
+            file_code = 's'
+        if 'hr' in self._file_name:
+            file_code = 'h'
+        if 'cgm' in self._file_name:
+            file_code = 'c'
+        if not 'file_code' in locals():
+            file_code = 'e'
+        for times in self._time:
+            minminus = datetime.timedelta(minutes=(times.minute % res))
+            minplus = datetime.timedelta(minutes=res) - minminus
+            if (times.minute % res) <= res / 2:
+                newtime = times - minminus
+            else:
+                newtime = times + minplus
+            value_idx = linear_search(self._roundtime, newtime)
+            # checks if rounded time is already present in _roundtime list
+            if not value_idx == -1:
+                # takes average if more than one value for specific time
+                value = sum(self.linear_search_value(times))/len(self.linear_search_value(times))
+                # action for repeated time: sum or avg depending on file origin
+                if file_code is 'a':
+                    self._roundvalue.append(self._roundvalue[value_idx] + value)
+                if file_code is 'b':
+                    self._roundvalue.append(self._roundvalue[value_idx] + value)
+                if file_code is 'm':
+                    self._roundvalue.append(self._roundvalue[value_idx] + value)
+                if file_code is 's':
+                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                if file_code is 'h':
+                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                if file_code is 'c':
+                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                if file_code is 'e':
+                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+
+            # appends rounded time to _roundtime list
+            self._roundtime.append(newtime)
+            # locates value associated with rounded time and appends to _roundvalue list
+            newvalue = int(self.linear_search_value(times)[0])
+            self._roundvalue.append(newvalue)
+        return zip(self._roundtime, self._roundvalue)
+
+
+
 
 
 def printArray(data_list, annotation_list, base_name, key_file):

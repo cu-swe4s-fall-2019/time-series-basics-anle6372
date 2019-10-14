@@ -239,18 +239,18 @@ class TestLinearSearch(unittest.TestCase):
                 file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
                 Id = 0
                 for i in range(rdm.randint(1,20)):
-                    time = random_date()
+                    time = str(random_date())
                     Id += i
                     value = rdm.randint(100, 1000)
                     file_writer.writerow([Id, time, value])
-                time = datetime.datetime(1800, 10, 20, 22, 38)
+                time = str(datetime.datetime(1800, 10, 20, 22, 38))
                 Id += 1
                 value = rdm.randint(1, 1000)
                 marked_time = time
                 marked_value = value
                 file_writer.writerow([Id, time, value])
                 for i in range(rdm.randint(1,20)):
-                    time = random_date()
+                    time = str(random_date())
                     Id += i
                     value = rdm.randint(100, 1000)
                     file_writer.writerow([Id, time, value])
@@ -265,11 +265,11 @@ class TestLinearSearch(unittest.TestCase):
             file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
             Id = 0
             for i in range(rdm.randint(1,20)):
-                time = random_date()
+                time = str(random_date())
                 Id += i
                 value = rdm.randint(100, 1000)
                 file_writer.writerow([Id, time, value])
-            time = datetime.datetime(1800, 10, 20, 22, 38)
+            time = str(datetime.datetime(1800, 10, 20, 22, 38))
             Id += 1
             value = rdm.randint(100, 1000)
             marked_time = time
@@ -280,7 +280,7 @@ class TestLinearSearch(unittest.TestCase):
                 Id += i
                 value = rdm.randint(100, 1000)
                 file_writer.writerow([Id, time, value])
-            time = datetime.datetime(1800, 10, 20, 22, 38)
+            time = str(datetime.datetime(1800, 10, 20, 22, 38))
             Id += 1
             value = rdm.randint(100, 1000)
             marked_value_2 = value
