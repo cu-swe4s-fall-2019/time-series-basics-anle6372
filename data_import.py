@@ -6,23 +6,69 @@ import argparse
 import datetime
 
 
+# open file, create a reader from csv.DictReader, and read input times and values
 class ImportData:
     def __init__(self, data_csv):
         self._time = []
         self._value = []
 
-        # open file, create a reader from csv.DictReader, and read input times and values
+        with open(data_csv, "r") as file_handle:
+            reader = csv.DictReader(file_handle)
+            for row in reader:
+                try:
+                    int(row['Id'])
+                except ValueError:
+                    continue
+                if not row['time']:
+                    self._time.append(None)
+                    if not row['value']:
+                        self._value.append(None)
+                        continue
+                    continue
+                try:
+                    self._time.append(dateutil.parser.parse(row['time']))
+                except ValueError:
+                    print('Bad input format for time')
+                    print(row['time'])
+                    raise ValueError
+                if row['value'] == 'low':
+                    self._value.append(int(40))
+                    print('low value replaced with 40')
+                    continue
+                if row['value'] == 'high':
+                    self._value.append(int(300))
+                    print('high value replaced with 300')
+                    continue
+                try:
+                    self._value.append(int(row['value']))
+                except ValueError:
+                    print('Bad input for value')
+                    print(row['value'])
+                    raise ValueError
+
+            if self._time == []:
+                self._time = None
+                print('File missing time')
+            if self._value == []:
+                self._value = None
+                print('File missing values')
+
+            file_handle.close()
+
 
     def linear_search_value(self, key_time):
+        pass
         # return list of value(s) associated with key_time
         # if none, return -1 and error message
 
     def binary_search_value(self,key_time):
+        pass
         # optional extra credit
         # return list of value(s) associated with key_time
         # if none, return -1 and error message
 
 def roundTimeArray(obj, res):
+    pass
     # Inputs: obj (ImportData Object) and res (rounding resoultion)
     # objective:
     # create a list of datetime entries and associated values
@@ -36,6 +82,7 @@ def roundTimeArray(obj, res):
 
 
 def printArray(data_list, annotation_list, base_name, key_file):
+    pass
     # combine and print on the key_file
 
 if __name__ == '__main__':
@@ -57,7 +104,7 @@ if __name__ == '__main__':
 
 
     #pull all the folders in the file
-    files_lst = # list the folders
+    #files_lst = # list the folders
 
 
     #import all the files into a list of ImportData objects (in a loop!)
