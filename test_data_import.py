@@ -14,13 +14,17 @@ import csv
 import random as rdm
 import datetime
 
+
 # function for generating random dates
 def random_date():
     try:
-        temporal_location = datetime.datetime(rdm.randint(1930, 2019), rdm.randint(1, 12), rdm.randint(1, 31), rdm.randint(0, 23), rdm.randint(0, 60))
+        temporal_location = datetime.datetime(
+            rdm.randint(1930, 2019), rdm.randint(1, 12), rdm.randint(1, 31),
+            rdm.randint(0, 23), rdm.randint(0, 60))
     except ValueError:
         temporal_location = datetime.datetime(1999, 10, 20, 22, 38)
     return temporal_location
+
 
 # Testing data_import empty file
 class TestEmpty(unittest.TestCase):
@@ -42,33 +46,48 @@ class TestEmpty(unittest.TestCase):
         imported_data = self.setUp()
         self.assertEqual(imported_data._value, None, msg='File missing value')
 
+
+# testing bad headers
 class TestBadHeaders(unittest.TestCase):
 
     def test_header_only_file(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',',
+                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['header', 'with', 'no useful', 'info'])
             file_handle.close()
             imported_data = d_i.ImportData('test_file.csv')
-            self.assertEqual(imported_data._time, None, msg='File missing time')
-            self.assertEqual(imported_data._value, None, msg='File missing time')
+            self.assertEqual(imported_data._time,
+                             None, msg='File missing time')
+            self.assertEqual(imported_data._value,
+                             None, msg='File missing time')
         os.remove('test_file.csv')
 
     def test_bad_header_file(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            file_writer.writerow(['time', 'values', 'no useful', 'info'])
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
+            file_writer.writerow(['time', 'values',
+                                  'no useful', 'info'])
             file_handle.close()
             imported_data = d_i.ImportData('test_file.csv')
-            self.assertEqual(imported_data._time, None, msg='File missing time')
-            self.assertEqual(imported_data._value, None, msg='File missing time')
+            self.assertEqual(imported_data._time,
+                             None, msg='File missing time')
+            self.assertEqual(imported_data._value,
+                             None, msg='File missing time')
         os.remove('test_file.csv')
 
+
+# testing variable values
 class TestVariableValues(unittest.TestCase):
 
     def test_random_file(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
             Id = 1
             check_vals = [[], [], []]
@@ -87,70 +106,57 @@ class TestVariableValues(unittest.TestCase):
         os.remove('test_file.csv')
 
 
+# testing bad values
 class TestBadValues(unittest.TestCase):
 
     def test_time_string(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle, delimiter=',',
+                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value'])
             time = 'not a time'
             value = int(420)
             Id = int(4)
             file_writer.writerow([Id, time, value])
             file_handle.close()
-            self.assertRaises(ValueError, lambda: d_i.ImportData('test_file.csv'))
+            self.assertRaises(ValueError,
+                              lambda: d_i.ImportData('test_file.csv'))
         os.remove('test_file.csv')
 
     def test_time_bool(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value'])
             time = True
             Id = int(4)
             file_writer.writerow([Id, time])
             file_handle.close()
-            self.assertRaises(ValueError, lambda: d_i.ImportData('test_file.csv'))
+            self.assertRaises(ValueError,
+                              lambda: d_i.ImportData('test_file.csv'))
         os.remove('test_file.csv')
 
     def test_time_float(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value'])
             time = float(420.69)
             value = int(420)
             Id = int(4)
             file_writer.writerow([Id, time, value])
             file_handle.close()
-            self.assertRaises(ValueError, lambda: d_i.ImportData('test_file.csv'))
-        os.remove('test_file.csv')
-
-    def test_value_Bool(self):
-        with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            file_writer.writerow(['Id', 'time', 'value'])
-            time = random_date()
-            value = False
-            Id = int(1)
-            file_writer.writerow([Id, time, value])
-            file_handle.close()
-            self.assertRaises(ValueError, lambda: d_i.ImportData('test_file.csv'))
-        os.remove('test_file.csv')
-
-    def test_value_string(self):
-        with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            file_writer.writerow(['Id', 'time', 'value'])
-            time = random_date()
-            value = 'hello'
-            Id = int(1)
-            file_writer.writerow([Id, time, value])
-            file_handle.close()
-            self.assertRaises(ValueError, lambda: d_i.ImportData('test_file.csv'))
+            self.assertRaises(ValueError,
+                              lambda: d_i.ImportData('test_file.csv'))
         os.remove('test_file.csv')
 
     def test_entry_empty(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value'])
             Id = 1
             check_vals = [[], [], []]
@@ -174,7 +180,9 @@ class TestBadValues(unittest.TestCase):
 
     def test_junk(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value'])
             Id = 1
             check_vals = [[], [], []]
@@ -193,11 +201,15 @@ class TestBadValues(unittest.TestCase):
             self.assertEqual(imported_data._value, check_vals[2])
         os.remove('test_file.csv')
 
+
+# testing values outside range
 class TestValuesOutsideRange(unittest.TestCase):
 
     def test_outside_range(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
             Id = 1
             check_vals = [[], [], []]
@@ -230,15 +242,20 @@ class TestValuesOutsideRange(unittest.TestCase):
             self.assertEqual(imported_data._value, check_vals[2])
         os.remove('test_file.csv')
 
+
+# test linear search
 class TestLinearSearch(unittest.TestCase):
 
     def test_linear_search_single(self):
         for i in range(20):
             with open('test_file.csv', "w") as file_handle:
-                file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
+                file_writer = csv.writer(file_handle,
+                                         delimiter=',', quotechar='"',
+                                         quoting=csv.QUOTE_MINIMAL)
+                file_writer.writerow(['Id', 'time', 'value',
+                                      'no useful', 'info'])
                 Id = 0
-                for i in range(rdm.randint(1,20)):
+                for i in range(rdm.randint(1, 20)):
                     time = str(random_date())
                     Id += i
                     value = rdm.randint(100, 1000)
@@ -249,22 +266,26 @@ class TestLinearSearch(unittest.TestCase):
                 marked_time = time
                 marked_value = value
                 file_writer.writerow([Id, time, value])
-                for i in range(rdm.randint(1,20)):
+                for i in range(rdm.randint(1, 20)):
                     time = str(random_date())
                     Id += i
                     value = rdm.randint(100, 1000)
                     file_writer.writerow([Id, time, value])
                 file_handle.close()
                 imported_data = d_i.ImportData('test_file.csv')
-                self.assertEqual(imported_data.linear_search_value(marked_time), [marked_value])
+                self.assertEqual(
+                    imported_data.linear_search_value(marked_time),
+                    [marked_value])
             os.remove('test_file.csv')
 
     def test_linear_search_double(self):
         with open('test_file.csv', "w") as file_handle:
-            file_writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
             file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
             Id = 0
-            for i in range(rdm.randint(1,20)):
+            for i in range(rdm.randint(1, 20)):
                 time = str(random_date())
                 Id += i
                 value = rdm.randint(100, 1000)
@@ -275,7 +296,7 @@ class TestLinearSearch(unittest.TestCase):
             marked_time = time
             marked_value_1 = value
             file_writer.writerow([Id, time, value])
-            for i in range(rdm.randint(1,20)):
+            for i in range(rdm.randint(1, 20)):
                 time = random_date()
                 Id += i
                 value = rdm.randint(100, 1000)
@@ -287,9 +308,10 @@ class TestLinearSearch(unittest.TestCase):
             file_writer.writerow([Id, time, value])
             file_handle.close()
             imported_data = d_i.ImportData('test_file.csv')
-            self.assertEqual(imported_data.linear_search_value(marked_time), [marked_value_1, marked_value_2])
+            self.assertEqual(imported_data.linear_search_value(marked_time),
+                             [marked_value_1, marked_value_2])
         os.remove('test_file.csv')
+
 
 if __name__ == '__main__':
     unittest.main()
-

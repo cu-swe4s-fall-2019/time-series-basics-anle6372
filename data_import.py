@@ -4,6 +4,7 @@ from os import listdir
 from os.path import isfile, join
 import argparse
 import datetime
+from pathlib import Path
 
 # simple linear search tool
 def linear_search(entries, key_entry):
@@ -58,11 +59,13 @@ class ImportData:
                     continue
                 # stores value
                 try:
-                    self._value.append(int(row['value']))
+                    self._value.append(float(row['value']))
                 except ValueError:
                     print('Bad input for value')
                     print(row['value'])
-                    raise ValueError
+                    self._value.append(0)
+                    continue
+
             # checks for empty arrays
             if self._time == []:
                 self._time = None
@@ -102,18 +105,20 @@ class ImportData:
         # ensure no duplicated times
         # handle duplicated values for a single timestamp based on instructions
         # return: iterable zip object of the two lists
-        if 'activity' in self._file_name:
+        if 'activity' in str(self._file_name):
             file_code = 'a'
-        if 'bolus' in self._file_name:
+        if 'bolus' in str(self._file_name):
             file_code = 'b'
-        if 'meal' in self._file_name:
+        if 'meal' in str(self._file_name):
             file_code = 'm'
-        if 'smbg' in self._file_name:
+        if 'smbg' in str(self._file_name):
             file_code = 's'
-        if 'hr' in self._file_name:
+        if 'hr' in str(self._file_name):
             file_code = 'h'
-        if 'cgm' in self._file_name:
+        if 'cgm' in str(self._file_name):
             file_code = 'c'
+        if 'basal' in str(self._file_name):
+            file_code = 'ba'
         if not 'file_code' in locals():
             file_code = 'e'
         for times in self._time:
@@ -141,23 +146,54 @@ class ImportData:
                     self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
                 if file_code is 'c':
                     self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                if file_code is 'ba':
+                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
                 if file_code is 'e':
                     self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
 
             # appends rounded time to _roundtime list
             self._roundtime.append(newtime)
             # locates value associated with rounded time and appends to _roundvalue list
-            newvalue = int(self.linear_search_value(times)[0])
+            newvalue = float(self.linear_search_value(times)[0])
             self._roundvalue.append(newvalue)
         return zip(self._roundtime, self._roundvalue)
 
-
-
-
-
 def printArray(data_list, annotation_list, base_name, key_file):
-    pass
-    # combine and print on the key_file
+    # find index with data you want
+    base_data = []
+    key_idx = 0
+    for i in range(len(annotation_list)):
+        if annotation_list[i] == key_file:
+            base_data = data_list[i]
+            print(base_data)
+            print('base data is: ' + annotation_list[i])
+            key_idx = i
+            break
+        if i == len(annotation_list):
+            print('Key not found')
+
+    # write time and key_file headers
+    file = open(base_name + '.csv', 'w')
+    file.write('time, ')
+    file.write(annotation_list[key_idx][0:-4] + ', ')
+    # remove key_file from header list
+    non_key = list(range(len(annotation_list)))
+    non_key.remove(key_idx)
+    # write remaining headers
+    for idx in non_key:
+        file.write(annotation_list[idx][0:-4] + ', ')
+    file.write('\n')
+
+    for time, value in base_data:
+        file.write(time.strftime("%m/%d/%Y %H:%M") + ', ' + value + ', ')
+        for n in non_key:
+            if time in data_list[n]._roundtimeStr:
+                file.write(str(data_list[n].linear_search_value(time)) + ', ')
+            else:
+                file.write('0, ')
+        file.write('\n')
+    file.close()
+
 
 if __name__ == '__main__':
 
@@ -165,30 +201,29 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description= 'A class to import, combine, and print data from a folder.',
     prog= 'dataImport')
 
-    parser.add_argument('folder_name', type = str, help = 'Name of the folder')
+    parser.add_argument('--folder_name', type = str, help = 'Name of the folder containing input files')
 
-    parser.add_argument('output_file', type=str, help = 'Name of Output file')
-
-    parser.add_argument('sort_key', type = str, help = 'File to sort on')
-
-    parser.add_argument('--number_of_files', type = int,
-    help = "Number of Files", required = False)
+    parser.add_argument('--output_file', type=str, help = 'Name of output file')
 
     args = parser.parse_args()
 
+    folder_path = Path(args.folder_name)
 
-    #pull all the folders in the file
-    #files_lst = # list the folders
+    # pull all the files from folder_name into list
+    files_lst = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
 
-
-    #import all the files into a list of ImportData objects (in a loop!)
+    # import all the files into a list of ImportData objects
     data_lst = []
+    for files in files_lst:
+        data_lst.append(ImportData(folder_path / files))
 
-    #create two new lists of zip objects
-    # do this in a loop, where you loop through the data_lst
-    data_5 = [] # a list with time rounded to 5min
-    data_15 = [] # a list with time rounded to 15min
+    # create two new lists of zip objects with 5min data and 15min data
+    data_5 = []  # a list with time rounded to 5min
+    data_15 = []  # a list with time rounded to 15min
+    for data in data_lst:
+        data_5.append(data.roundTimeArray(5))
+        data_15.append(data.roundTimeArray(15))
 
-    #print to a csv file
-    printLargeArray(data_5,files_lst,args.output_file+'_5',args.sort_key)
-    printLargeArray(data_15, files_lst,args.output_file+'_15',args.sort_key)
+    # print to a csv file
+    printArray(data_5, files_lst, args.output_file+'_5', 'cgm_small.csv')
+    printArray(data_15, files_lst, args.output_file+'_15', 'cgm_small.csv')

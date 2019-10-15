@@ -30,7 +30,17 @@ Note date files are synthetic data.
                 - res: integer value that will determine the rounding interval of times to create _roundtime
             + Outputs:
                 - iterable zip object of data containing roundtime and corresponding values (roundtime, roundvalue)
-            
+        
+        3. printArray(data_list, annotation_list, base_name, key_file):
+            + Description: returns a csv file with the first 2 columns correspoing to the times and values of the key_file
+                           the remaining columns correspond to the mapped data from the other files
+            + Inputs:
+                - data_list: type list of zip objects of data (time, value) pairs
+                - annotation_list: ​type list of strings with column labels for the data value
+                - base_name: type string, file name you want to print as
+                - key_file: element from annotation_list you want to align the data on
+            + Outputs:
+                - iterable zip object of data containing roundtime and corr
     
 ### Usage
 
@@ -44,18 +54,34 @@ imported_data = d_i.ImportData('test_file.csv')
 ```
 import csv
 import dateutil.parser
+import datetime
+
 ```
 
 ## roundTimeArray Function
 
-### Description:
+### Description: returns a iterable zip object of data (time, value) pairs
 
     - Inputs:
+        - res: integer value that will determine the rounding interval of times to create _roundtime
     - Outputs:
+        - iterable zip object of data containing roundtime and corresponding values (roundtime, roundvalue)
 
+### Necessary Modules
+
+```
+import csv
+import dateutil.parser
+import datetime
+
+```
 ## printArray Function
 
-### Description:
+### Description: returns a csv file with the first 2 columns corresponding to the times and values of the key_file, the remaining columns correspond to the mapped data from the other files
 
     - Inputs:
+        - data_list: type list of zip objects of data (time, value) pairs
+        - annotation_list: ​type list of strings with column labels for the data value
+        - base_name: type string, file name you want to print as
+        - key_file: element from annotation_list you want to align the data on
     - Outputs:
