@@ -6,6 +6,7 @@ import argparse
 import datetime
 from pathlib import Path
 
+
 # simple linear search tool
 def linear_search(entries, key_entry):
     for i in range(len(entries)):
@@ -15,7 +16,8 @@ def linear_search(entries, key_entry):
     return -1
 
 
-# open file, create a reader from csv.DictReader, and read input times and values
+# open file, create a reader from csv.DictReader,
+# and read input times and values
 class ImportData:
     def __init__(self, data_csv):
         self._file_name = data_csv
@@ -76,7 +78,6 @@ class ImportData:
 
             file_handle.close()
 
-
     def linear_search_value(self, key_time):
         # returns list of value(s) associated with key_time
         values = []
@@ -93,7 +94,25 @@ class ImportData:
         return values
 
     def binary_search_value(self, key_time):
-        pass
+        values = []
+        sortedtimes = sorted(self._time)
+        if type(key_time) == str:
+            key_time = dateutil.parser.parse(key_time)
+        for i in range(len(sortedtimes)):
+            lo = -1
+            hi = len(sortedtimes)
+            while (hi - lo > 1):
+                mid = (hi + lo) // 2
+
+                if key_time == sortedtimes[mid][0]:
+                    return sortedtimes[mid][1]
+
+                if (key < L[mid][0]):
+                    hi = mid
+                else:
+                    lo = mid
+
+                return -1
         # optional extra credit
         # return list of value(s) associated with key_time
         # if none, return -1 and error message
@@ -119,7 +138,7 @@ class ImportData:
             file_code = 'c'
         if 'basal' in str(self._file_name):
             file_code = 'ba'
-        if not 'file_code' in locals():
+        if 'file_code' not in locals():
             file_code = 'e'
         for times in self._time:
             minminus = datetime.timedelta(minutes=(times.minute % res))
@@ -132,31 +151,42 @@ class ImportData:
             # checks if rounded time is already present in _roundtime list
             if not value_idx == -1:
                 # takes average if more than one value for specific time
-                value = sum(self.linear_search_value(times))/len(self.linear_search_value(times))
+                value = sum(self.linear_search_value(times))/len(
+                    self.linear_search_value(times))
                 # action for repeated time: sum or avg depending on file origin
                 if file_code is 'a':
-                    self._roundvalue.append(self._roundvalue[value_idx] + value)
+                    self._roundvalue.append(
+                        self._roundvalue[value_idx] + value)
                 if file_code is 'b':
-                    self._roundvalue.append(self._roundvalue[value_idx] + value)
+                    self._roundvalue.append(
+                        self._roundvalue[value_idx] + value)
                 if file_code is 'm':
-                    self._roundvalue.append(self._roundvalue[value_idx] + value)
+                    self._roundvalue.append(
+                        self._roundvalue[value_idx] + value)
                 if file_code is 's':
-                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                    self._roundvalue.append(
+                        (self._roundvalue[value_idx] + value)/2)
                 if file_code is 'h':
-                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                    self._roundvalue.append(
+                        (self._roundvalue[value_idx] + value)/2)
                 if file_code is 'c':
-                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                    self._roundvalue.append(
+                        (self._roundvalue[value_idx] + value)/2)
                 if file_code is 'ba':
-                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                    self._roundvalue.append(
+                        (self._roundvalue[value_idx] + value)/2)
                 if file_code is 'e':
-                    self._roundvalue.append((self._roundvalue[value_idx] + value)/2)
+                    self._roundvalue.append(
+                        (self._roundvalue[value_idx] + value)/2)
 
             # appends rounded time to _roundtime list
             self._roundtime.append(newtime)
-            # locates value associated with rounded time and appends to _roundvalue list
+            # locates value associated with rounded
+            # time and appends to _roundvalue list
             newvalue = float(self.linear_search_value(times)[0])
             self._roundvalue.append(newvalue)
         return zip(self._roundtime, self._roundvalue)
+
 
 def printArray(data_list, annotation_list, base_name, key_file):
     # find index with data you want
@@ -165,7 +195,6 @@ def printArray(data_list, annotation_list, base_name, key_file):
     for i in range(len(annotation_list)):
         if annotation_list[i] == key_file:
             base_data = data_list[i]
-            print(base_data)
             print('base data is: ' + annotation_list[i])
             key_idx = i
             break
@@ -185,32 +214,38 @@ def printArray(data_list, annotation_list, base_name, key_file):
     file.write('\n')
 
     for time, value in base_data:
-        file.write(time.strftime("%m/%d/%Y %H:%M") + ', ' + value + ', ')
+        file.write(time.strftime("%m/%d/%Y %H:%M") + ', ' + str(value) + ', ')
         for n in non_key:
-            if time in data_list[n]._roundtimeStr:
-                file.write(str(data_list[n].linear_search_value(time)) + ', ')
-            else:
-                file.write('0, ')
+            for element in data_list[n]:
+                if element[0] == time:
+                    file.write(str(element[1]) + ', ')
+                    break
+            file.write('0, ')
         file.write('\n')
     file.close()
 
 
 if __name__ == '__main__':
 
-    #adding arguments
-    parser = argparse.ArgumentParser(description= 'A class to import, combine, and print data from a folder.',
-    prog= 'dataImport')
+    # adding arguments
+    parser = argparse.ArgumentParser(
+        description='A class to import, '
+                    'combine, and print data from a folder.',
+        prog='dataImport')
 
-    parser.add_argument('--folder_name', type = str, help = 'Name of the folder containing input files')
+    parser.add_argument('--folder_name',
+                        type=str,
+                        help='Name of the folder containing input files')
 
-    parser.add_argument('--output_file', type=str, help = 'Name of output file')
+    parser.add_argument('--output_file', type=str, help='Name of output file')
 
     args = parser.parse_args()
 
     folder_path = Path(args.folder_name)
 
     # pull all the files from folder_name into list
-    files_lst = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
+    files_lst = [f for f in
+                 listdir(folder_path) if isfile(join(folder_path, f))]
 
     # import all the files into a list of ImportData objects
     data_lst = []

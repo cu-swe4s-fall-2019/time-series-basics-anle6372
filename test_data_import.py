@@ -10,6 +10,8 @@ None
 import unittest
 import data_import as d_i
 import os
+import os.path
+from os import path
 import csv
 import random as rdm
 import datetime
@@ -311,6 +313,57 @@ class TestLinearSearch(unittest.TestCase):
             self.assertEqual(imported_data.linear_search_value(marked_time),
                              [marked_value_1, marked_value_2])
         os.remove('test_file.csv')
+
+
+class TestFileExistance(unittest.TestCase):
+
+    def setUp(self):
+        self.assertFalse(path.exists('output_file.csv'))
+
+    def test_file_exists(self):
+        with open('test_file1.csv', "w") as file_handle:
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
+            file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
+            Id = 1
+            check_vals = [[], [], []]
+            for i in range(100):
+                time = random_date()
+                Id += i
+                value = rdm.randint(100, 1000)
+                check_vals[0].append(Id)
+                check_vals[1].append(time)
+                check_vals[2].append(value)
+                file_writer.writerow([Id, time, value])
+            file_handle.close()
+
+        with open('test_file2.csv', "w") as file_handle:
+            file_writer = csv.writer(file_handle,
+                                     delimiter=',', quotechar='"',
+                                     quoting=csv.QUOTE_MINIMAL)
+            file_writer.writerow(['Id', 'time', 'value', 'no useful', 'info'])
+            Id = 1
+            check_vals = [[], [], []]
+            for i in range(100):
+                time = random_date()
+                Id += i
+                value = rdm.randint(100, 1000)
+                check_vals[0].append(Id)
+                check_vals[1].append(time)
+                check_vals[2].append(value)
+                file_writer.writerow([Id, time, value])
+            file_handle.close()
+        imported_data1 = d_i.ImportData('test_file1.csv')
+        imported_data2 = d_i.ImportData('test_file2.csv')
+        zipp = [imported_data1.roundTimeArray(5),
+                imported_data2.roundTimeArray(5)]
+        d_i.printArray(zipp, ['test_file1.csv',
+                              'test_file2.csv'],
+                       'output_file', 'test_file1.csv')
+        self.assertTrue(path.exists('output_file.csv'))
+        os.remove('test_file1.csv')
+        os.remove('test_file2.csv')
 
 
 if __name__ == '__main__':
