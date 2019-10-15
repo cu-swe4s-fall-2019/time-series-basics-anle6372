@@ -73,8 +73,15 @@ import datetime
 import csv
 import dateutil.parser
 import datetime
-
 ```
+
+### Usage
+
+This will store the rounded times (to 5 min) and associated values in a zip object using instance of ImportData 'data'
+```
+zip = data.roundTimeArray(5)
+```
+
 ## printArray Function
 
 ### Description: returns a csv file with the first 2 columns corresponding to the times and values of the key_file, the remaining columns correspond to the mapped data from the other files
@@ -85,3 +92,14 @@ import datetime
         - base_name: type string, file name you want to print as
         - key_file: element from annotation_list you want to align the data on
     - Outputs:
+        - a csv file with the following:
+            + column 1: time values from key_file
+            + column 2: values from key_file
+            + column 3-n: values from other files corresping to times in column 1
+
+### Usage
+
+This will create a csv file 'output_file' with the zipped data objects in data_5, the files in file_lst using the key_file 'cgm_small.csv'
+```
+printArray(data_5, files_lst, output_file, 'cgm_small.csv')
+```
