@@ -103,3 +103,49 @@ This will create a csv file 'output_file' with the zipped data objects in data_5
 ```
 printArray(data_5, files_lst, output_file, 'cgm_small.csv')
 ```
+
+## pandas_import.py
+
+### Description
+
+The following tasks are completed:
+    - Imports all csv data files into Pandas dataframes
+    - Converts the 'time' column to type datetime and makes it the index of the dataframe
+    - Checks the type of the 'value' column and deletes rows where 'value' conains a string
+    - Converts all types in 'value' columns to float64
+    - Joins the dataframes with the cgm frame as the base on the time index
+    - Created round time arrays where the time index column was rounded to the nearest 5, 15 min.
+    - To resolve conflicts, the following strategies were used
+        + values were summed: activity, bolus, meal
+        + values were averaged: smbg, hr, cgm, basal
+    - Two csv files corresponding to the Pandas dataframes were constructed.
+### Usage
+
+Run with the following command:
+
+```
+python pandas_import.py
+```
+
+### Necessary Modules
+
+```
+import numpy as np
+import pandas as pd
+import datetime as dt
+from os import listdir
+from os.path import isfile, join
+from pathlib import Path
+```
+
+### Benchmarking
+
+### pandas_import.py
+Running pandas_import.py utilizes the following resources:
+    - 2.68 seconds
+    - 57404 KB
+
+### data_import.py
+Running pandas_import.py utilizes the following resources:
+    - 900.84 seconds
+    - 26412 KB
