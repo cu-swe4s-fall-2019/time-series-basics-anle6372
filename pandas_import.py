@@ -64,3 +64,7 @@ fifteen_min_sum = sum_baseDF.groupby(['time15']).sum()
 # Join the two resulting frames
 five_min = five_min_mean.join(five_min_sum)
 fifteen_min = fifteen_min_mean.join(fifteen_min_sum)
+
+# Print frames to csv files
+five_min.to_csv('five_min.csv', index=True, header=True)
+fifteen_min.to_csv('fifteen_min.csv', index=True, header=True)
