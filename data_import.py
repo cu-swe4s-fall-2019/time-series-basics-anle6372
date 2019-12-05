@@ -1,3 +1,13 @@
+"""Script for importing and manipulating data using Pandas Dataframes
+Parameters
+----------
+None
+Returns
+    - Two .csv files containing clean time rounded series
+-------
+None
+"""
+
 import csv
 import dateutil.parser
 from os import listdir

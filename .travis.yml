@@ -11,8 +11,12 @@ before_install:
     - conda install -y pycodestyle
     - conda install -y python-dateutil
     - conda install --yes python=3.6
+    - conda install -y numpy
+    - conda install -y pandas
 
 script:
     - python test_data_import.py
+    - python test_pandas_import.py
     - pycodestyle test_data_import.py
     - pycodestyle data_import.py
+    - pycodestyle pandas_import.py
