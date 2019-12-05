@@ -1,8 +1,9 @@
-"""Unittesting framework for data_import.py
+"""Script for importing and manipulating data using Pandas Dataframes
 Parameters
 ----------
 None
 Returns
+    - Two .csv files containing clean time rounded series
 -------
 None
 """
@@ -74,6 +75,7 @@ def main():
     # Print frames to csv files
     five_min.to_csv('five_min.csv', index=True, header=True)
     fifteen_min.to_csv('fifteen_min.csv', index=True, header=True)
+
 
 if __name__ == '__main__':
     main()

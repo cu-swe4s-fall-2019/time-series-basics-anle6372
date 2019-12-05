@@ -1,4 +1,4 @@
-"""Unittesting framework for data_import.py
+"""Unittesting framework for pandas_import.py
 Parameters
 ----------
 None
